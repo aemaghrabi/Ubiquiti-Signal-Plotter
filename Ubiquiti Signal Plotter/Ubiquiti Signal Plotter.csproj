@@ -1,0 +1,25 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net6.0-windows</TargetFramework>
+    <RootNamespace>Ubiquiti_Signal_Plotter</RootNamespace>
+    <Nullable>enable</Nullable>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <PackageId>aemaghrabi.usignal.plotter</PackageId>
+    <Authors>Ahmed ElMaghrabi</Authors>
+    <Company>elmaghrabi.co</Company>
+    <Copyright>All rights preserved for elmaghrabi.co</Copyright>
+    <PackageProjectUrl>https://elmaghrabi.co</PackageProjectUrl>
+    <Description>Ubiquiti TX/RX Power Logger</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="ScottPlot" Version="4.1.69" />
+    <PackageReference Include="ScottPlot.WinForms" Version="4.1.69" />
+    <PackageReference Include="SSH.NET" Version="2023.0.0" />
+  </ItemGroup>
+
+</Project>
