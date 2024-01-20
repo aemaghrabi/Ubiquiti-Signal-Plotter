@@ -166,42 +166,37 @@ namespace Ubiquiti_Signal_Plotter
         private void connect()
         {
             // Check IP Address
-            for(int i = 0; i < 10; i++)
+            var ipCheck = Regex.Match(ip_textbox.Text, @"^(?:(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\.){3}(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])$");
+
+            if (!ipCheck.Success)
             {
-                signal_plot_logger.Add(i, Math.Exp(i));
+                MessageBox.Show("IP Should follow the format 255.255.255.255", "Incorrect IP", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
             }
-            db_formsPlot.Refresh();
-            //var ipCheck = Regex.Match(ip_textbox.Text, @"^(?:(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\.){3}(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])$");
 
-            //if (!ipCheck.Success)
-            //{
-            //    MessageBox.Show("IP Should follow the format 255.255.255.255", "Incorrect IP", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            //    return;
-            //}
+            client = new SshClient(ip_textbox.Text, username_textbox.Text, password_textbox.Text);
 
-            //client = new SshClient(ip_textbox.Text, username_textbox.Text, password_textbox.Text);
+            client.ClientConnected += (s, e) =>
+            {
+                isConnected = true;
+                connect_button.Text = "Disconnect";
+                start_button.Enabled = true;
+            };
 
-            //client.ClientConnected += (s, e) =>
-            //{
-            //    isConnected = true;
-            //    connect_button.Text = "Disconnect";
-            //    start_button.Enabled = true;
-            //};
+            client.ErrorOccurred += (s, e) =>
+            {
+                if (e != null)
+                    MessageBox.Show(e.Exception.Message, "Connection Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            };
 
-            //client.ErrorOccurred += (s, e) =>
-            //{
-            //    if (e != null)
-            //        MessageBox.Show(e.Exception.Message, "Connection Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            //};
-
-            //try
-            //{
-            //    client.Connect();
-            //}
-            //catch (Exception ex)
-            //{
-            //    MessageBox.Show(ex.Message, "Connection Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            //}
+            try
+            {
+                client.Connect();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Connection Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void start_button_Click(object sender, EventArgs e)
@@ -241,7 +236,6 @@ namespace Ubiquiti_Signal_Plotter
 
         private void exportData_button_Click(object sender, EventArgs e)
         {
-            //var items = db_formsPlot.Plot.get;
             String csvStr = String.Join(Environment.NewLine, samples.Select(s => $"{s.Key},{s.Value};"));
 
             SaveFileDialog saveFileDialog = new SaveFileDialog();
