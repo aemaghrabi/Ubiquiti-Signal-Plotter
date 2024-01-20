@@ -44,6 +44,8 @@
             txPower_textbox = new TextBox();
             label3 = new Label();
             ip_textbox = new TextBox();
+            saveFigure_button = new Button();
+            exportData_button = new Button();
             SuspendLayout();
             // 
             // db_formsPlot
@@ -187,11 +189,33 @@
             ip_textbox.TabIndex = 19;
             ip_textbox.Text = "192.168.1.21";
             // 
+            // saveFigure_button
+            // 
+            saveFigure_button.Location = new Point(102, 747);
+            saveFigure_button.Name = "saveFigure_button";
+            saveFigure_button.Size = new Size(141, 43);
+            saveFigure_button.TabIndex = 20;
+            saveFigure_button.Text = "Save Figure";
+            saveFigure_button.UseVisualStyleBackColor = true;
+            saveFigure_button.Click += saveFigure_button_Click;
+            // 
+            // exportData_button
+            // 
+            exportData_button.Location = new Point(399, 747);
+            exportData_button.Name = "exportData_button";
+            exportData_button.Size = new Size(141, 43);
+            exportData_button.TabIndex = 21;
+            exportData_button.Text = "Export Data";
+            exportData_button.UseVisualStyleBackColor = true;
+            exportData_button.Click += exportData_button_Click;
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(623, 753);
+            ClientSize = new Size(623, 802);
+            Controls.Add(exportData_button);
+            Controls.Add(saveFigure_button);
             Controls.Add(ip_textbox);
             Controls.Add(txPower_textbox);
             Controls.Add(label3);
@@ -234,5 +258,7 @@
         private TextBox txPower_textbox;
         private Label label3;
         private TextBox ip_textbox;
+        private Button saveFigure_button;
+        private Button exportData_button;
     }
 }

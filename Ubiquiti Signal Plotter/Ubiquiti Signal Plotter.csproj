@@ -13,6 +13,7 @@
     <Copyright>All rights preserved for elmaghrabi.co</Copyright>
     <PackageProjectUrl>https://elmaghrabi.co</PackageProjectUrl>
     <Description>Ubiquiti TX/RX Power Logger</Description>
+    <LangVersion>preview</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>

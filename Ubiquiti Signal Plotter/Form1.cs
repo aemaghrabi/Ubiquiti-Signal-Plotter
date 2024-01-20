@@ -21,6 +21,9 @@ namespace Ubiquiti_Signal_Plotter
 
         //private DataStreamer plot_logger;
         private int sampleCount = 0;
+
+        private Dictionary<int, double> samples = new Dictionary<int, double>();
+
         public Form1()
         {
             InitializeComponent();
@@ -79,7 +82,9 @@ namespace Ubiquiti_Signal_Plotter
             //TimeSpan t = time - new DateTime(1970, 1, 1);
 
             //plot_logger.Add(receivedData.Remote.Signal);
-            signal_plot_logger.Add(sampleCount, receivedData.Remote.Signal);
+            var value = receivedData.Remote.Signal;
+            signal_plot_logger.Add(sampleCount, value);
+            samples.Add(sampleCount, value);
             //txPower_plot_logger.Add(sampleCount, receivedData.TransmitPower);
             //rssi_plot_logger.Add(sampleCount, receivedData.Remote.RSSI);
             //plot_logger.ViewWipeRight(); // new data overwrites old data left to right
@@ -161,37 +166,42 @@ namespace Ubiquiti_Signal_Plotter
         private void connect()
         {
             // Check IP Address
-            var ipCheck = Regex.Match(ip_textbox.Text, @"^(?:(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\.){3}(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])$");
-
-            if (!ipCheck.Success)
+            for(int i = 0; i < 10; i++)
             {
-                MessageBox.Show("IP Should follow the format 255.255.255.255", "Incorrect IP", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
+                signal_plot_logger.Add(i, Math.Exp(i));
             }
+            db_formsPlot.Refresh();
+            //var ipCheck = Regex.Match(ip_textbox.Text, @"^(?:(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\.){3}(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])$");
 
-            client = new SshClient(ip_textbox.Text, username_textbox.Text, password_textbox.Text);
+            //if (!ipCheck.Success)
+            //{
+            //    MessageBox.Show("IP Should follow the format 255.255.255.255", "Incorrect IP", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            //    return;
+            //}
 
-            client.ClientConnected += (s, e) =>
-            {
-                isConnected = true;
-                connect_button.Text = "Disconnect";
-                start_button.Enabled = true;
-            };
+            //client = new SshClient(ip_textbox.Text, username_textbox.Text, password_textbox.Text);
 
-            client.ErrorOccurred += (s, e) =>
-            {
-                if (e != null)
-                    MessageBox.Show(e.Exception.Message, "Connection Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            };
+            //client.ClientConnected += (s, e) =>
+            //{
+            //    isConnected = true;
+            //    connect_button.Text = "Disconnect";
+            //    start_button.Enabled = true;
+            //};
 
-            try
-            {
-                client.Connect();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message, "Connection Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
+            //client.ErrorOccurred += (s, e) =>
+            //{
+            //    if (e != null)
+            //        MessageBox.Show(e.Exception.Message, "Connection Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            //};
+
+            //try
+            //{
+            //    client.Connect();
+            //}
+            //catch (Exception ex)
+            //{
+            //    MessageBox.Show(ex.Message, "Connection Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            //}
         }
 
         private void start_button_Click(object sender, EventArgs e)
@@ -212,6 +222,37 @@ namespace Ubiquiti_Signal_Plotter
             if (backgroundWorker.IsBusy)
             {
                 backgroundWorker.CancelAsync();
+            }
+        }
+
+        private void saveFigure_button_Click(object sender, EventArgs e)
+        {
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            saveFileDialog.Filter = "PNG Image (*.png)|*.png|All files (*.*)|*.*";
+            saveFileDialog.FilterIndex = 0;
+            saveFileDialog.RestoreDirectory = true;
+
+
+            if (saveFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                db_formsPlot.Plot.SaveFig(saveFileDialog.FileName);
+            }
+        }
+
+        private void exportData_button_Click(object sender, EventArgs e)
+        {
+            //var items = db_formsPlot.Plot.get;
+            String csvStr = String.Join(Environment.NewLine, samples.Select(s => $"{s.Key},{s.Value};"));
+
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            saveFileDialog.Filter = "CSV File (*.csv)|*.csv|All files (*.*)|*.*";
+            saveFileDialog.FilterIndex = 0;
+            saveFileDialog.RestoreDirectory = true;
+
+
+            if (saveFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                File.WriteAllText(saveFileDialog.FileName, csvStr);
             }
         }
     }
