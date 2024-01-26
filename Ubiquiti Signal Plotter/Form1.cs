@@ -117,7 +117,7 @@ namespace Ubiquiti_Signal_Plotter
 
                 command.Dispose();
 
-                Thread.Sleep(1000);
+                Thread.Sleep(500);
             }
         }
 
