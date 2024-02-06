@@ -39,7 +39,7 @@ namespace Ubiquiti_Signal_Plotter
             db_formsPlot.Plot.XLabel("Sample Number");
             db_formsPlot.Plot.XAxis.AxisTicks.MajorLineWidth = 1;
             db_formsPlot.Plot.XAxis.AxisTicks.MinorLineWidth = 1;
-            db_formsPlot.Plot.YLabel("Power (dB)");
+            db_formsPlot.Plot.YLabel("Power (dBm)");
             db_formsPlot.Refresh();
         }
 
@@ -65,16 +65,25 @@ namespace Ubiquiti_Signal_Plotter
                 return;
 
             var dtObj = Newtonsoft.Json.JsonConvert.DeserializeObject<IEnumerable<WstalistResponse>>(rawData);
+            //var dtObj = Newtonsoft.Json.JsonConvert.DeserializeObject<IWConfig>(rawData);
 
             if (dtObj == null)
                 return;
+            //if (string.IsNullOrEmpty(rawData))
+
 
             var receivedData = dtObj.First();
 
             rawdata_richTextBox.Text = rawData;
+
             rxPower_textbox.Text = receivedData.Remote.Signal.ToString();
+            rx_power_dbm_7seg.Value = receivedData.Remote.Signal.ToString();
+            rx_power_mw_7seg.Value = dbmTomW(receivedData.Remote.Signal).ToString();
             txPower_textbox.Text = receivedData.TransmitPower.ToString();
             rssi_textbox.Text = receivedData.Remote.RSSI.ToString();
+            tx_power_dbm_7seg.Value = receivedData.TransmitPower.ToString();
+            tx_power_mw_7seg.Value = dbmTomW(receivedData.TransmitPower).ToString();
+            //rssi_sevenSegmentArray.Value = dbmTomW(receivedData.Remote.RSSI).ToString();
 
             //var timestamp = receivedData.Remote.Time;
             //var time = DateTime.Parse(timestamp);
@@ -107,6 +116,7 @@ namespace Ubiquiti_Signal_Plotter
                     break;
                 }
 
+                //var command = client.CreateCommand("wstalist");
                 var command = client.CreateCommand("wstalist");
 
                 command.Execute();
@@ -118,6 +128,19 @@ namespace Ubiquiti_Signal_Plotter
                 command.Dispose();
 
                 Thread.Sleep(500);
+
+                var valuedBm = (string.IsNullOrEmpty(rxPower_textbox.Text)) ? 0 : Convert.ToDecimal(rxPower_textbox.Text);
+                var upperVal = upper_level_numericUpDown.Value;
+                var lowerVal = lower_level_numericUpDown.Value;
+
+                if (valuedBm >= lowerVal && valuedBm <= upperVal)
+                {
+                    ledBulb1.Color = Color.Red;
+                }
+                else
+                {
+                    ledBulb1.Color = Color.Green;
+                }
             }
         }
 
@@ -126,11 +149,13 @@ namespace Ubiquiti_Signal_Plotter
             isConnected = false;
             isStarted = false;
 
-            signal_plot_logger = db_formsPlot.Plot.AddDataLogger(label: "Received Signal", color: Color.Black);
+            signal_plot_logger = db_formsPlot.Plot.AddDataLogger(label: "Received Signal", color: Color.Black, lineWidth: 2);
             //rssi_plot_logger = db_formsPlot.Plot.AddDataLogger(label: "RSSI", color: Color.Blue);
             //txPower_plot_logger = db_formsPlot.Plot.AddDataLogger(label: "TX Power", color: Color.Red);
 
-            signal_plot_logger.ViewFull();
+            signal_plot_logger.ViewSlide(100);
+            //signal_plot_logger.ViewFull();
+            //signal_plot_logger.ViewWipeRight();
             //rssi_plot_logger.ViewSlide();
             //txPower_plot_logger.ViewSlide();
         }
@@ -248,6 +273,16 @@ namespace Ubiquiti_Signal_Plotter
             {
                 File.WriteAllText(saveFileDialog.FileName, csvStr);
             }
+        }
+
+        private string dbmTomW(double dbm)
+        {
+            var P_mw = 1000 * Math.Pow(10, (dbm - 30) / 10);
+
+            return String.Format("{0:0.0000}", P_mw);
+            //if (dbm < 0) dbm = -1 * dbm;
+            //var val = (1 * 10 ^ (-3)) * Math.Pow(10, (dbm / 10));
+            //return String.Format("{0:0.00}", val); ;
         }
     }
 }

@@ -19,9 +19,9 @@ namespace Ubiquiti_Signal_Plotter
         public string LastIP { get; set; }
 
         [JsonProperty("tx")]
-        public double TransmitPower { get; set; }
+        public double TransmitPower { get { return 0; } }
 
-        [JsonProperty("rx")]
+        //[JsonProperty("rx")]
         public double ReceviedPower { get; set; }
 
         [JsonProperty("rssi")]
